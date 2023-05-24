@@ -80,7 +80,6 @@
     }
 
     .header{
-        width: calc(width - 1rem);
         padding: 0.5rem 1.5rem;
         border-bottom: 1.5px solid #dfdfdf;
         display: flex;
@@ -110,20 +109,23 @@
         cursor: pointer;
     }
 
-    .body{
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 1rem;
-        padding-top: 3rem;
+    .body {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: start;
+		gap: 1rem;		
         padding-bottom: 3rem;
-    }
+        padding-top: 3rem;
+        overflow-y: scroll;
+        max-height: calc(100vh - 13rem);
+        min-height: calc(100vh - 13rem);
+	}
 
     .body .body-row{
         padding: 0.5rem 1.5rem;
         display: flex;
-        width: calc(70% - 20rem);
+        width: calc(70% - 21rem);
         padding: 0 25rem;
         justify-content: center;
         gap: 2rem;

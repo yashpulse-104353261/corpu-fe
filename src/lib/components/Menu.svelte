@@ -1,5 +1,52 @@
 <script>
+	import { onMount } from "svelte";
     import Logo from "../../lib/components/Logo.svelte";
+    import { page } from '$app/stores';
+
+    let menu = [
+        {
+            path: "/app/profile",
+            name: "Profile",
+            active: false
+        },
+        {
+            path: "/app/apply",
+            name: "Apply",
+            active: false
+        },
+        {
+            path: "/app/viewapplications",
+            name: "View Appications",
+            active: false
+        },
+        {
+            path: "/app/applications",
+            name: "Appications",
+            active: false
+        }
+    ]
+
+    const setActive = (path) => {
+        menu.forEach(item => {
+            if(item.path == path){
+                item.active = true;
+            }else{
+                item.active = false;
+            }
+        });
+
+        menu = [...menu];
+    }
+
+    onMount(() => {
+        setActive($page.url.pathname);
+    });
+
+    page.subscribe(value => {
+        setActive(value.url.pathname);
+    });
+
+   
 </script>
 
 <div class="menu-bar">
@@ -8,9 +55,9 @@
         <Logo/>
     </div>
     <div class="menu">
-        <a class="menu-item active" href="/app/profile">Profile</a>
-        <a class="menu-item" href="/app/apply">Apply</a>
-        <a class="menu-item" href="/app/viewapplications">View Appications</a>
+        {#each menu as menuItem}
+            <a href={menuItem.path} class="menu-item {menuItem.active == true ? "active":""}"> {menuItem.name}</a>  
+        {/each}
     </div>
 </div>
 

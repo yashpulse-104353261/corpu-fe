@@ -1,17 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" href="%sveltekit.assets%/favicon.png" />
-		<meta name="viewport" content="width=device-width" />
-		%sveltekit.head%
-	</head>
-	<style>
-		body{
-			margin: 0px !important;
-		}
-	</style>
-	<body data-sveltekit-preload-data="hover">
-		<div style="display: contents">%sveltekit.body%</div>
-	</body>
+
+<head>
+	<meta charset="utf-8" />
+	<link rel="icon" href="%sveltekit.assets%/favicon.png" />
+	<meta name="viewport" content="width=device-width" />
+	%sveltekit.head%
+</head>
+<style>
+	@import url(https://fonts.googleapis.com/css?family=Muli);
+	@import url(https://fonts.googleapis.com/css?family=Gentium+Basic);
+
+	body {
+		margin: 0px !important;
+		font-family: 'Muli', Serif;
+	}
+
+	::-webkit-scrollbar {
+		width: 5px;
+	}
+
+	::-webkit-scrollbar-track {
+		background-color: #ebebeb;
+		-webkit-border-radius: 10px;
+		border-radius: 10px;
+	}
+
+	::-webkit-scrollbar-thumb {
+		-webkit-border-radius: 10px;
+		border-radius: 10px;
+		background: #1990D3;
+	}
+</style>
+
+<body data-sveltekit-preload-data="hover">
+	<div style="display: contents">%sveltekit.body%</div>
+</body>
+
 </html>

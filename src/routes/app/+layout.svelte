@@ -21,11 +21,11 @@
     }
 
     .menu{
-        width: 15%;
+        width: 15vw;
     }
 
     .page{
-        width: 85%;
+        width: 85vw;
         background-color: #FCFCFC;
     }
 </style>
