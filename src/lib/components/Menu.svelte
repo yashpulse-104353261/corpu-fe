@@ -3,27 +3,34 @@
     import Logo from "../../lib/components/Logo.svelte";
     import { page } from '$app/stores';
     import { notifications } from "./notification";
+    import { UserStore } from '../../stores';
+
+
 
     let menu = [
         {
             path: "/app/profile",
             name: "Profile",
-            active: false
+            active: false,
+            visibleTo: ["Applicant","Admin","Permanent","Casual"]
         },
         {
             path: "/app/apply",
             name: "Apply",
-            active: false
+            active: false,
+            visibleTo: ["Applicant","Casual"]
         },
         {
             path: "/app/viewapplications",
             name: "View Appications",
-            active: false
+            active: false,
+            visibleTo: ["Applicant","Casual"]
         },
         {
             path: "/app/applications",
             name: "Appications",
-            active: false
+            active: false,
+            visibleTo: ["Admin","Permanent"]
         }
     ]
 
@@ -51,6 +58,14 @@
         localStorage.removeItem("authToken");
         localStorage.removeItem("refreshToken");
         localStorage.removeItem("user");
+
+        UserStore.set({
+            isLoggedIn: false,
+            user: null,
+            authToken: null,
+            refreshToken: null
+        });
+
 
         notifications.success("Logged out successfully",1500);
 

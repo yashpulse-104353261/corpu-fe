@@ -2,6 +2,8 @@
     import { onMount } from 'svelte';
     import CorpuAPI from '../../../lib/api/CorpuAPI';
     import { notifications } from "../../../lib/components/notification";
+    import { fly } from "svelte/transition";
+    import { backOut } from 'svelte/easing'
 
     let jobs = [];
 
@@ -91,8 +93,12 @@
             </div>
         </div>
 
-        {#each jobs as job}
-        <div class="body-row">
+        {#each jobs as job,i}
+        <div class="body-row" in:fly={{
+            y: 200,
+            delay: 100 * i,
+            easing: backOut
+          }}>
             <div class="unit">
                 <div class="unit-info">
                     <div class="unit-info-top">

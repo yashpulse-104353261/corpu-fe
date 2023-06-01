@@ -1,3 +1,48 @@
+<script>
+    import { onMount } from 'svelte';
+    import CorpuAPI from '../../../lib/api/CorpuAPI';
+    import { notifications } from "../../../lib/components/notification";
+    import { fly } from "svelte/transition";
+    import { backOut } from 'svelte/easing'
+
+    let applications = [];
+
+    onMount(() => {
+        getApplications();
+    });
+
+    const getApplications = async (notify = true) => {
+        const response = await CorpuAPI.getApplications();
+        if (response?.data?.success === true) {
+            response?.data?.messages.forEach(message => {
+                if(notify){
+                    notifications.success(message, 500);
+                }
+            });
+            applications = response?.data?.data;
+        } else {
+            response?.data?.messages.forEach(message => {
+                notifications.danger(message, 2000);
+            });
+        }
+    }
+
+    const withdrawApplication = async (application_id) => {
+        const response = await CorpuAPI.changeApplicationStatus(application_id, "Withdrawn");
+        if (response?.data?.success === true) {
+            response?.data?.messages.forEach(message => {
+                notifications.success(message, 500);
+            });
+            getApplications(false);
+        } else {
+            response?.data?.messages.forEach(message => {
+                notifications.danger(message, 2000);
+            });
+        }
+    }
+</script>
+
+
 <div class="profile">
     <div class="header">
         <span class="header-title">View Applied Applications</span>
@@ -7,414 +52,64 @@
     </div>
     <div class="body">
         <!-- 1 -->
-        <div class="body-row">
-            <div class="unit success-box">
+
+        {#each applications as application,i}
+        <div class="body-row" in:fly={{
+            y: 200,
+            delay: 100 * i,
+            easing: backOut
+          }}>
+            <div class="unit {application.application_status === "Processing" ? "processing" : application.application_status === "Submitted" ? "submitted" : application.application_status === "Successful" ? "successful" : application.application_status === "Withdrawn" ? "withdrawn" : application.application_status === "Unsuccessful" ? "unsuccessful" : "" }-box">
                 <div class="unit-info">
                     <div class="unit-info-top">
                         <div class="unit-info-kv">
                             <span>Unit Code</span>
-                            <span>COS60009</span>
+                            <span>{application.unit_id}</span>
                         </div>
                         <div class="unit-info-kv">
-                            <span>Staff Name</span>
-                            <span>Prof. Chengfei Liu</span>
+                            <span>Convenor Name</span>
+                            <span>{application.convenor_name}</span>
                         </div>
                     </div>
                     <div class="unit-info-bottom">
                         <div class="unit-info-kv">
                             <span>Unit Name</span>
-                            <span>Data Management for the Big Data Age</span>
+                            <span>{application.unit_name}</span>
                         </div>
+                        {#if application.application_status === "Processing" || application.application_status === "Submitted"}
+                        <div>
+                            <button class="withdraw-btn" on:click={() => withdrawApplication(application.application_id) }>
+                                <svg xmlns="http://www.w3.org/2000/svg" height="32" viewBox="0 -960 960 960" width="32" fill="currentColor"><path d="m361-299 119-121 120 121 47-48-119-121 119-121-47-48-120 121-119-121-48 48 120 121-120 121 48 48ZM261-120q-24 0-42-18t-18-42v-570h-41v-60h188v-30h264v30h188v60h-41v570q0 24-18 42t-42 18H261Zm438-630H261v570h438v-570Zm-438 0v570-570Z"/></svg>
+                                Withdraw</button>
+                        </div>
+                        {/if}
                     </div>
                 </div>
                 <div class="unit-controls">
                     <div class="applicantion-id">
                         <div class="unit-info-kv">
                             <span>Application&nbspID</span>
-                            <span>85650456</span>
+                            <span>{application.application_id}</span>
                         </div>
                     </div>
                     <div class="applicantion-status">
                         <div class="unit-info-kv">
                             <span>Status</span>
-                            <span class="success">Successful</span>
+                            <span class="{application.application_status === "Processing" ? "processing" : application.application_status === "Submitted" ? "submitted" : application.application_status === "Successful" ? "successful" : application.application_status === "Withdrawn" ? "withdrawn" : application.application_status === "Unsuccessful" ? "unsuccessful" : "" }">{application.application_status}</span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-         <!-- 1 -->
-         <div class="body-row">
-            <div class="unit withdrawn-box">
-                <div class="unit-info">
-                    <div class="unit-info-top">
-                        <div class="unit-info-kv">
-                            <span>Unit Code</span>
-                            <span>COS60009</span>
-                        </div>
-                        <div class="unit-info-kv">
-                            <span>Staff Name</span>
-                            <span>Prof. Chengfei Liu</span>
-                        </div>
-                    </div>
-                    <div class="unit-info-bottom">
-                        <div class="unit-info-kv">
-                            <span>Unit Name</span>
-                            <span>Data Management for the Big Data Age</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="unit-controls">
-                    <div class="applicantion-id">
-                        <div class="unit-info-kv">
-                            <span>Application&nbspID</span>
-                            <span>85650456</span>
-                        </div>
-                    </div>
-                    <div class="applicantion-status">
-                        <div class="unit-info-kv">
-                            <span>Status</span>
-                            <span class="withdrawn">Withdrawn</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+            {:else}
 
-         <!-- 1 -->
-         <div class="body-row">
-            <div class="unit submitted-box">
-                <div class="unit-info">
-                    <div class="unit-info-top">
-                        <div class="unit-info-kv">
-                            <span>Unit Code</span>
-                            <span>COS60009</span>
-                        </div>
-                        <div class="unit-info-kv">
-                            <span>Staff Name</span>
-                            <span>Prof. Chengfei Liu</span>
-                        </div>
-                    </div>
-                    <div class="unit-info-bottom">
-                        <div class="unit-info-kv">
-                            <span>Unit Name</span>
-                            <span>Data Management for the Big Data Age</span>
-                        </div>
-                        <div>
-                            <button class="withdraw-btn">
-                                <svg xmlns="http://www.w3.org/2000/svg" height="32" viewBox="0 -960 960 960" width="32" fill="currentColor"><path d="m361-299 119-121 120 121 47-48-119-121 119-121-47-48-120 121-119-121-48 48 120 121-120 121 48 48ZM261-120q-24 0-42-18t-18-42v-570h-41v-60h188v-30h264v30h188v60h-41v570q0 24-18 42t-42 18H261Zm438-630H261v570h438v-570Zm-438 0v570-570Z"/></svg>
-                                Withdraw</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="unit-controls">
-                    <div class="applicantion-id">
-                        <div class="unit-info-kv">
-                            <span>Application&nbspID</span>
-                            <span>85650456</span>
-                        </div>
-                    </div>
-                    <div class="applicantion-status">
-                        <div class="unit-info-kv">
-                            <span>Status</span>
-                            <span class="submitted">Submitted</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-          <!-- 1 -->
-          <div class="body-row">
-            <div class="unit processing-box">
-                <div class="unit-info">
-                    <div class="unit-info-top">
-                        <div class="unit-info-kv">
-                            <span>Unit Code</span>
-                            <span>COS60009</span>
-                        </div>
-                        <div class="unit-info-kv">
-                            <span>Staff Name</span>
-                            <span>Prof. Chengfei Liu</span>
-                        </div>
-                    </div>
-                    <div class="unit-info-bottom">
-                        <div class="unit-info-kv">
-                            <span>Unit Name</span>
-                            <span>Data Management for the Big Data Age</span>
-                        </div>
-                        <div>
-                            <button class="withdraw-btn">
-                                <svg xmlns="http://www.w3.org/2000/svg" height="32" viewBox="0 -960 960 960" width="32" fill="currentColor"><path d="m361-299 119-121 120 121 47-48-119-121 119-121-47-48-120 121-119-121-48 48 120 121-120 121 48 48ZM261-120q-24 0-42-18t-18-42v-570h-41v-60h188v-30h264v30h188v60h-41v570q0 24-18 42t-42 18H261Zm438-630H261v570h438v-570Zm-438 0v570-570Z"/></svg>
-                                Withdraw</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="unit-controls">
-                    <div class="applicantion-id">
-                        <div class="unit-info-kv">
-                            <span>Application&nbspID</span>
-                            <span>85650456</span>
-                        </div>
-                    </div>
-                    <div class="applicantion-status">
-                        <div class="unit-info-kv">
-                            <span>Status</span>
-                            <span class="processing">Processing</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-          <!-- 1 -->
-          <div class="body-row">
-            <div class="unit processing-box">
-                <div class="unit-info">
-                    <div class="unit-info-top">
-                        <div class="unit-info-kv">
-                            <span>Unit Code</span>
-                            <span>COS60009</span>
-                        </div>
-                        <div class="unit-info-kv">
-                            <span>Staff Name</span>
-                            <span>Prof. Chengfei Liu</span>
-                        </div>
-                    </div>
-                    <div class="unit-info-bottom">
-                        <div class="unit-info-kv">
-                            <span>Unit Name</span>
-                            <span>Data Management for the Big Data Age</span>
-                        </div>
-                        <div>
-                            <button class="withdraw-btn">
-                                <svg xmlns="http://www.w3.org/2000/svg" height="32" viewBox="0 -960 960 960" width="32" fill="currentColor"><path d="m361-299 119-121 120 121 47-48-119-121 119-121-47-48-120 121-119-121-48 48 120 121-120 121 48 48ZM261-120q-24 0-42-18t-18-42v-570h-41v-60h188v-30h264v30h188v60h-41v570q0 24-18 42t-42 18H261Zm438-630H261v570h438v-570Zm-438 0v570-570Z"/></svg>
-                                Withdraw</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="unit-controls">
-                    <div class="applicantion-id">
-                        <div class="unit-info-kv">
-                            <span>Application&nbspID</span>
-                            <span>85650456</span>
-                        </div>
-                    </div>
-                    <div class="applicantion-status">
-                        <div class="unit-info-kv">
-                            <span>Status</span>
-                            <span class="processing">Processing</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-          <!-- 1 -->
-          <div class="body-row">
-            <div class="unit processing-box">
-                <div class="unit-info">
-                    <div class="unit-info-top">
-                        <div class="unit-info-kv">
-                            <span>Unit Code</span>
-                            <span>COS60009</span>
-                        </div>
-                        <div class="unit-info-kv">
-                            <span>Staff Name</span>
-                            <span>Prof. Chengfei Liu</span>
-                        </div>
-                    </div>
-                    <div class="unit-info-bottom">
-                        <div class="unit-info-kv">
-                            <span>Unit Name</span>
-                            <span>Data Management for the Big Data Age</span>
-                        </div>
-                        <div>
-                            <button class="withdraw-btn">
-                                <svg xmlns="http://www.w3.org/2000/svg" height="32" viewBox="0 -960 960 960" width="32" fill="currentColor"><path d="m361-299 119-121 120 121 47-48-119-121 119-121-47-48-120 121-119-121-48 48 120 121-120 121 48 48ZM261-120q-24 0-42-18t-18-42v-570h-41v-60h188v-30h264v30h188v60h-41v570q0 24-18 42t-42 18H261Zm438-630H261v570h438v-570Zm-438 0v570-570Z"/></svg>
-                                Withdraw</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="unit-controls">
-                    <div class="applicantion-id">
-                        <div class="unit-info-kv">
-                            <span>Application&nbspID</span>
-                            <span>85650456</span>
-                        </div>
-                    </div>
-                    <div class="applicantion-status">
-                        <div class="unit-info-kv">
-                            <span>Status</span>
-                            <span class="processing">Processing</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-          <!-- 1 -->
-          <div class="body-row">
-            <div class="unit processing-box">
-                <div class="unit-info">
-                    <div class="unit-info-top">
-                        <div class="unit-info-kv">
-                            <span>Unit Code</span>
-                            <span>COS60009</span>
-                        </div>
-                        <div class="unit-info-kv">
-                            <span>Staff Name</span>
-                            <span>Prof. Chengfei Liu</span>
-                        </div>
-                    </div>
-                    <div class="unit-info-bottom">
-                        <div class="unit-info-kv">
-                            <span>Unit Name</span>
-                            <span>Data Management for the Big Data Age</span>
-                        </div>
-                        <div>
-                            <button class="withdraw-btn">
-                                <svg xmlns="http://www.w3.org/2000/svg" height="32" viewBox="0 -960 960 960" width="32" fill="currentColor"><path d="m361-299 119-121 120 121 47-48-119-121 119-121-47-48-120 121-119-121-48 48 120 121-120 121 48 48ZM261-120q-24 0-42-18t-18-42v-570h-41v-60h188v-30h264v30h188v60h-41v570q0 24-18 42t-42 18H261Zm438-630H261v570h438v-570Zm-438 0v570-570Z"/></svg>
-                                Withdraw</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="unit-controls">
-                    <div class="applicantion-id">
-                        <div class="unit-info-kv">
-                            <span>Application&nbspID</span>
-                            <span>85650456</span>
-                        </div>
-                    </div>
-                    <div class="applicantion-status">
-                        <div class="unit-info-kv">
-                            <span>Status</span>
-                            <span class="processing">Processing</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-          <!-- 1 -->
-          <div class="body-row">
-            <div class="unit processing-box">
-                <div class="unit-info">
-                    <div class="unit-info-top">
-                        <div class="unit-info-kv">
-                            <span>Unit Code</span>
-                            <span>COS60009</span>
-                        </div>
-                        <div class="unit-info-kv">
-                            <span>Staff Name</span>
-                            <span>Prof. Chengfei Liu</span>
-                        </div>
-                    </div>
-                    <div class="unit-info-bottom">
-                        <div class="unit-info-kv">
-                            <span>Unit Name</span>
-                            <span>Data Management for the Big Data Age</span>
-                        </div>
-                        <div>
-                            <button class="withdraw-btn">
-                                <svg xmlns="http://www.w3.org/2000/svg" height="32" viewBox="0 -960 960 960" width="32" fill="currentColor"><path d="m361-299 119-121 120 121 47-48-119-121 119-121-47-48-120 121-119-121-48 48 120 121-120 121 48 48ZM261-120q-24 0-42-18t-18-42v-570h-41v-60h188v-30h264v30h188v60h-41v570q0 24-18 42t-42 18H261Zm438-630H261v570h438v-570Zm-438 0v570-570Z"/></svg>
-                                Withdraw</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="unit-controls">
-                    <div class="applicantion-id">
-                        <div class="unit-info-kv">
-                            <span>Application&nbspID</span>
-                            <span>85650456</span>
-                        </div>
-                    </div>
-                    <div class="applicantion-status">
-                        <div class="unit-info-kv">
-                            <span>Status</span>
-                            <span class="processing">Processing</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+            <h3>No Applications Found</h3>
 
-         <!-- 1 -->
-         <div class="body-row">
-            <div class="unit processing-box">
-                <div class="unit-info">
-                    <div class="unit-info-top">
-                        <div class="unit-info-kv">
-                            <span>Unit Code</span>
-                            <span>COS60009</span>
-                        </div>
-                        <div class="unit-info-kv">
-                            <span>Staff Name</span>
-                            <span>Prof. Chengfei Liu</span>
-                        </div>
-                    </div>
-                    <div class="unit-info-bottom">
-                        <div class="unit-info-kv">
-                            <span>Unit Name</span>
-                            <span>Data Management for the Big Data Age</span>
-                        </div>
-                        <div>
-                            <button class="withdraw-btn">
-                                <svg xmlns="http://www.w3.org/2000/svg" height="32" viewBox="0 -960 960 960" width="32" fill="currentColor"><path d="m361-299 119-121 120 121 47-48-119-121 119-121-47-48-120 121-119-121-48 48 120 121-120 121 48 48ZM261-120q-24 0-42-18t-18-42v-570h-41v-60h188v-30h264v30h188v60h-41v570q0 24-18 42t-42 18H261Zm438-630H261v570h438v-570Zm-438 0v570-570Z"/></svg>
-                                Withdraw</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="unit-controls">
-                    <div class="applicantion-id">
-                        <div class="unit-info-kv">
-                            <span>Application&nbspID</span>
-                            <span>85650456</span>
-                        </div>
-                    </div>
-                    <div class="applicantion-status">
-                        <div class="unit-info-kv">
-                            <span>Status</span>
-                            <span class="processing">Processing</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        {/each}
 
-        <!-- 1 -->
-        <div class="body-row">
-            <div class="unit unsuccessful-box">
-                <div class="unit-info">
-                    <div class="unit-info-top">
-                        <div class="unit-info-kv">
-                            <span>Unit Code</span>
-                            <span>COS60009</span>
-                        </div>
-                        <div class="unit-info-kv">
-                            <span>Staff Name</span>
-                            <span>Prof. Chengfei Liu</span>
-                        </div>
-                    </div>
-                    <div class="unit-info-bottom">
-                        <div class="unit-info-kv">
-                            <span>Unit Name</span>
-                            <span>Data Management for the Big Data Age</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="unit-controls">
-                    <div class="applicantion-id">
-                        <div class="unit-info-kv">
-                            <span>Application&nbspID</span>
-                            <span>85650456</span>
-                        </div>
-                    </div>
-                    <div class="applicantion-status">
-                        <div class="unit-info-kv">
-                            <span>Status</span>
-                            <span class="unsuccessful">Unsuccessful</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+
+      
     </div>
 </div>
 
@@ -507,6 +202,10 @@
         flex-direction: column;
     }
 
+    .unit-info-kv span:nth-child(1){
+        font-weight: bold;
+    }
+
     .unit-controls{
         display: flex;
         flex-direction: column;
@@ -514,12 +213,12 @@
         gap: 1rem;
     }
 
-    .success-box{
+    .successful-box{
         background-color: #E5F9E0;
         border-left: 3px solid #78d47b;
     }
 
-    .success{
+    .successful{
         color:#78d47b;
         font-weight: bold;
     }
@@ -589,7 +288,7 @@
         background-color: #F9E0E0;
         border-radius: 0.4rem;
         color: #b93838;
-        padding: 0.5rem;
+        padding: 0.1rem 0.5rem;
     }
 
     .withdraw-btn:hover{

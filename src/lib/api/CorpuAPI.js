@@ -129,6 +129,86 @@ class CoupuAPIWrapper {
             return ex.response;
         }
     }
+
+    async getApplications(){
+        try{
+            return await this.DoAuthenticatedGet("applications");
+        }catch(ex){
+            return ex.response;
+        }
+    }
+
+    async changeApplicationStatus(application_id,application_status){
+        try{
+            return await this.DoAuthenticatedPost("applications",{
+                application_id,
+                application_status
+            });
+        }catch(ex){
+            return ex.response;
+        }
+    }
+
+    async getCv(userId = null){
+        try{
+            if(userId){
+                return await this.DoAuthenticatedGet("cv?user_id="+userId);
+            }else{
+                return await this.DoAuthenticatedGet("cv");
+            }
+        }catch(ex){
+            return ex.response;
+        }
+
+    }
+
+    async uploadCv(cv){
+        try{
+            return await this.DoAuthenticatedPost("cv",{
+                cv
+            });
+        }catch(ex){
+            return ex.response;
+        }
+    }
+
+    async updateAvailability(
+        availability
+    ){
+        try{
+            return await this.DoAuthenticatedPost("availability",{
+                availability
+            });
+        }catch(ex){
+            return ex.response;
+        }
+    }
+
+    async getAvailability(userId = null){
+        try{
+            if(userId){
+                return await this.DoAuthenticatedGet("availability?user_id="+userId);
+            }else{
+                return await this.DoAuthenticatedGet("availability");
+            }
+        }catch(ex){
+            return ex.response;
+        }
+
+    }
+
+    async getProfileStatus(userId = null){
+        try{
+            if(userId){
+                return await this.DoAuthenticatedGet("profile/status?user_id="+userId);
+            }else{
+                return await this.DoAuthenticatedGet("profile/status");
+            }
+        }catch(ex){
+            return ex.response;
+        }
+
+    }
         
 }
 
