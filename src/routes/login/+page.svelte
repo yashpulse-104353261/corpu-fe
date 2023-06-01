@@ -1,5 +1,50 @@
 <script>
     import Logo from "../../lib/components/Logo.svelte";
+    import CorpuAPI from "../../lib/api/CorpuAPI";
+    import { notifications } from "../../lib/components/notification";
+    import { UserStore } from "../../stores";
+    import { onMount } from "svelte";
+    import { goto } from '$app/navigation';
+
+    let loginData = {
+        email: "",
+        password: "",
+    }
+
+    onMount(() => {
+        if($UserStore.isLoggedIn === true){
+            history.back();
+        }
+    })
+
+
+    const login = async () => {
+
+        const response = await CorpuAPI.login(loginData.email, loginData.password)
+
+        if(response?.data?.success === true){
+            response?.data?.messages.forEach(message => {
+                notifications.success(message,1000);
+            });
+
+            localStorage.setItem("authToken",response?.data?.auth_token);
+            localStorage.setItem("refreshToken",response?.data?.refresh_token);
+            localStorage.setItem("user",JSON.stringify(response?.data?.data));
+
+            UserStore.set({
+                isLoggedIn: true,
+                user: response?.data?.data,
+                authToken: response?.data?.auth_token,
+                refreshToken: response?.data?.refresh_token
+            });
+
+            goto("app/profile");
+        }else{
+            response?.data?.messages.forEach(message => {
+                notifications.danger(message,1000);
+            });
+        } 
+    }
 </script>
 
 <div class="login-page">
@@ -11,19 +56,19 @@
         <div>
             <div class="input-box">
                 <label for="email">email</label>
-                <input type="email" id="email" name="email" placeholder="enter email">
+                <input type="email" id="email" name="email" placeholder="enter email" bind:value={loginData.email}>
             </div>
             <div class="input-box">
                 <label for="password">password</label>
-                <input type="password" id="password" name="password" placeholder="enter password">
+                <input type="password" id="password" name="password" placeholder="enter password" bind:value={loginData.password}>
             </div>
         </div>
         <div class="forgot-password">
             <span>forgot password?</span>
         </div>
         <div class="buttons">
-            <button>sign up</button>
-            <button>login</button>
+            <button on:click={() => window.location.pathname = "signup"}>sign up</button>
+            <button on:click={() => login()}>login</button>
         </div>
 
     </div>

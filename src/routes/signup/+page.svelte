@@ -1,5 +1,33 @@
 <script>
-    import Logo from "../../lib/components/Logo.svelte";
+    import Logo from "$lib/components/Logo.svelte";
+    import CorpuAPI from "../../lib/api/CorpuAPI";
+    import { notifications } from "../../lib/components/notification";
+    import { goto } from "$app/navigation";
+
+
+    let signUpData = {
+        email: "",
+        password: "",
+        createPassword: ""
+    }
+
+    const signUp = async () => {
+        const response = await CorpuAPI.signup(signUpData.email, signUpData.password, signUpData.createPassword)
+        
+        if(response?.data?.success === true){
+            response?.data?.messages.forEach(message => {
+                notifications.success(message,1000);
+            });
+
+            goto("login");
+        }else{
+            response?.data?.messages.forEach(message => {
+                notifications.danger(message,1000);
+            });
+        }
+
+        
+    }
 </script>
 
 <div class="signup-page">
@@ -11,19 +39,23 @@
         <div>
             <div class="input-box">
                 <label for="email">email</label>
-                <input type="email" id="email" name="email" placeholder="enter email">
+                <input type="email" id="email" name="email" placeholder="enter email" bind:value={signUpData.email}>
             </div>
             <div class="input-box">
                 <label for="create_password">create password</label>
-                <input type="password" id="create_password" name="create_password" placeholder="creat password">
+                <input type="password" id="create_password" name="create_password" placeholder="create password" bind:value={signUpData.createPassword}>
             </div>
             <div class="input-box">
                 <label for="password">confirm password</label>
-                <input type="password" id="password" name="confirm password">
+                <input type="text" id="password" name="password" placeholder="confirm password" bind:value={signUpData.password}>
             </div>
         </div>
         <div class="buttons">
-            <button>sign up</button>
+            
+        </div>
+        <div class="buttons">
+            <button on:click={() => window.location.pathname = "login"}>login</button>
+            <button on:click={() => signUp()}>sign up</button>
         </div>
 
     </div>
@@ -84,7 +116,7 @@
         display: flex;
         gap: 1rem;
         width: 100%;
-        justify-content: end;
+        justify-content: space-between;
         padding: 2rem 0 0 0;
     }
 
@@ -96,8 +128,8 @@
         padding: 0.6rem;
         border: none;
         border-radius: 0.4rem;
-        box-shadow: 0.1px 0.1px 3px rgba(0, 0, 0, 0.25);
         letter-spacing: 0.2ch;
+        box-shadow: 0.1px 0.1px 3px rgba(0, 0, 0, 0.25);
     }
 
     .buttons button:hover{
@@ -105,10 +137,18 @@
     }
 
     .buttons button:nth-child(1){
-        background-color: #1990D3;
+        background-color: #7A7A7A;
     }
 
     .buttons button:nth-child(1):hover{
+        background-color: #a09e9e;
+    }
+
+    .buttons button:nth-child(2){
+        background-color: #1990D3;
+    }
+
+    .buttons button:nth-child(2):hover{
         background-color: #39a4e2;
     }
 
