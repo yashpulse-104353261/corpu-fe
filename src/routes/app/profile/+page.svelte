@@ -160,20 +160,20 @@
 
     const getProfileStatus = async (notify = true) => {
                
-               let response = await CorpuAPI.getProfileStatus();
-               if (response?.data?.success === true) {
-                   response?.data?.messages.forEach(message => {
-                       if(notify){
-                           notifications.success(message, 500);
-                       }
-                   });
-                   profileStatus = response?.data?.data;
-               } else {
-                   response?.data?.messages.forEach(message => {
-                       notifications.danger(message, 2000);
-                   });
-               }
-           }
+        let response = await CorpuAPI.getProfileStatus();
+        if (response?.data?.success === true) {
+            response?.data?.messages.forEach(message => {
+                if(notify){
+                    notifications.success(message, 500);
+                }
+            });
+            profileStatus = response?.data?.data;
+        } else {
+            response?.data?.messages.forEach(message => {
+                notifications.danger(message, 2000);
+            });
+        }
+    }
 
     const getCV = async (notify = true) => {
 
@@ -384,7 +384,7 @@
         <div class="body-row">
             <div class="input-box">
                 <label for="state">state</label>
-                <select name="state" id="state" bind:value={profile.user_state} disabled={!isEdit}>
+                <select name="state" id="state" bind:value={profile.user_state} disabled={!isEdit} placeholder="select state">
                     <option value="VIC">VIC</option>
                     <option value="NSW">NSW</option>
                     <option value="QLD">QLD</option>

@@ -32,6 +32,17 @@ class CoupuAPIWrapper {
             }
         }
 
+        this.DoAuthenticatedDelete = async (endpoint) =>{
+            try{
+                let response = axios.delete(this.api+endpoint,{headers:{
+                    "X-Authorization": "Bearer " + localStorage.getItem("authToken")
+                }});
+                return response;
+            }catch (ex){
+                return ex.response;                                
+            }
+        }
+
         this.DoAuthenticatedPost = async (endpoint,data) =>{
             try{
                 let response = axios.post(this.api+endpoint,data,{
@@ -138,6 +149,22 @@ class CoupuAPIWrapper {
         }
     }
 
+    async getStaff(){
+        try{
+            return await this.DoAuthenticatedGet("staff");
+        }catch(ex){
+            return ex.response;
+        }
+    }
+
+    async getUnits(){
+        try{
+            return await this.DoAuthenticatedGet("unit");
+        }catch(ex){
+            return ex.response;
+        }
+    }
+
     async changeApplicationStatus(application_id,application_status){
         try{
             return await this.DoAuthenticatedPost("applications",{
@@ -208,6 +235,62 @@ class CoupuAPIWrapper {
             return ex.response;
         }
 
+    }
+
+    async deleteUnit(unit_id){
+        try{
+            if(unit_id){
+                return await this.DoAuthenticatedDelete("unit?unit_id="+unit_id);
+            }else{
+                return await this.DoAuthenticatedDelete("profile/status");
+            }
+        }catch(ex){
+            return ex.response;
+        }
+
+    }
+
+    async addUnit(
+        unit_id,
+        unit_name
+    ){
+        try{
+            return await this.DoAuthenticatedPost("unit",{
+                unit_id,
+                unit_name
+            });
+        }catch(ex){
+            return ex.response;
+        }
+    }
+
+    async saveJob(
+        unit_id,
+        convenor_id,
+        unit_requirements_text,
+        job_ad_status,
+        unit_ad_id = null
+    ){
+        try{
+
+            if(unit_ad_id){
+                return await this.DoAuthenticatedPost("jobs?unit_ad_id="+unit_ad_id,{
+                    unit_id,
+                    convenor_id,
+                    unit_requirements_text,
+                    job_ad_status
+                });
+            }else{
+            return await this.DoAuthenticatedPost("jobs",{
+                unit_id,
+                convenor_id,
+                unit_requirements_text,
+                job_ad_status
+            });
+        }
+        }catch(ex){
+            return ex.response;
+        }
     }
         
 }

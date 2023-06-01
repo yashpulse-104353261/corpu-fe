@@ -22,13 +22,23 @@
         },
         {
             path: "/app/viewapplications",
-            name: "View Appications",
+            name: "View Applications",
             active: false,
             visibleTo: ["Applicant","Casual"]
         },
         {
             path: "/app/applications",
-            name: "Appications",
+            name: "Applications",
+            active: false,
+            visibleTo: ["Admin","Permanent"]
+        },{
+            path: "/app/unit",
+            name: "Units",
+            active: false,
+            visibleTo: ["Admin","Permanent"]
+        },{
+            path: "/app/jobs",
+            name: "Jobs",
             active: false,
             visibleTo: ["Admin","Permanent"]
         }

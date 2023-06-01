@@ -4,12 +4,22 @@
     import { notifications } from "../../../lib/components/notification";
     import { fly } from "svelte/transition";
     import { backOut } from 'svelte/easing'
+    import { goto } from "$app/navigation";
 
     let jobs = [];
 
     onMount(() => {
-        getJobs();
+        getProfileStatus();
     });
+
+    let profileStatus = {
+        profile_completion_percentage : 0,
+        is_profile_completed : false,
+    }
+
+    $: if(profileStatus.is_profile_completed === true){
+        getJobs();
+    }
 
     const getJobs = async (notify = true) => {
         const response = await CorpuAPI.getJobs("active");
@@ -28,6 +38,23 @@
     }
 
     let jobToView = {}
+
+    const getProfileStatus = async (notify = true) => {
+               
+        let response = await CorpuAPI.getProfileStatus();
+        if (response?.data?.success === true) {
+            response?.data?.messages.forEach(message => {
+                if(notify){
+                    notifications.success(message, 500);
+                }
+            });
+            profileStatus = response?.data?.data;
+        } else {
+            response?.data?.messages.forEach(message => {
+                notifications.danger(message, 2000);
+            });
+        }
+    }
 
     const viewJob = (job) => {
         jobToView = job;
@@ -87,11 +114,24 @@
             <span>Submit</span></button>
     </div>
     <div class="body">
+
+        {#if profileStatus.is_profile_completed === false}
+        <div class="body-row">
+            <div class="profile-warning">
+                <span>Profile is incomplete. Please complete your profile before applying for units.</span>
+                <button class="profile-btn" on:click={() => goto('/app/profile')}>Complete Profile</button>
+            </div>
+        </div>
+        {/if}
+
+        {#if profileStatus.is_profile_completed === true}
         <div class="body-row">
             <div class="units-apply">
                 select units to apply for
             </div>
         </div>
+
+        
 
         {#each jobs as job,i}
         <div class="body-row" in:fly={{
@@ -137,6 +177,7 @@
             </div>
         </div>
         {/each}       
+    {/if}
     </div>
 </div>
 
@@ -353,6 +394,40 @@
     }
 
     .close-modal:hover{
+        background-color: #097abb;
+        color: #FFFFFF;
+        cursor: pointer;
+    }
+
+    .profile-warning{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        border-radius: 0.4rem;
+        background-color: #FFFFFF;
+        color: #d47b7b;
+        box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.25);
+
+    }
+
+    .profile-warning span:nth-child(1){
+        font-weight: bold;
+    }
+
+
+    .profile-warning button{
+        background-color: #FFFFFF;
+        color: #097abb;
+        border: none;
+        border-radius: 0.4rem;
+        padding: 0.5rem 2rem ;
+        font-size: large;
+        border: #097abb 1px solid;
+    }
+
+    .profile-warning button:hover{
         background-color: #097abb;
         color: #FFFFFF;
         cursor: pointer;
