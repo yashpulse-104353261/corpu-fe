@@ -2,8 +2,8 @@ import axios from 'axios';
 
 class CoupuAPIWrapper {
     constructor() {
-        // this.api = "https://api.corpu.me/";
-        this.api = "http://yashpulse.com:8000/";
+        this.api = "https://api.corpu.me/";
+        // this.api = "http://yashpulse.com:8000/";
         this.DoUnAuthenticatedGet = async (endpoint,config) =>{
             try{
                 let response = axios.get(this.api+endpoint,config);
