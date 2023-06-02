@@ -41,6 +41,11 @@
             name: "Jobs",
             active: false,
             visibleTo: ["Admin","Permanent"]
+        },{
+            path: "/app/query",
+            name: "Query",
+            active: false,
+            visibleTo: ["Admin"]
         }
     ]
 

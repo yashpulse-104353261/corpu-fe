@@ -26,7 +26,8 @@
         "/app/unit",
         "/app/jobs",
         '/login',
-        '/signup'
+        '/signup',
+        '/app/query'
     ]
 
     let menu = [
@@ -73,6 +74,11 @@
             name: "Sign Up",
             active: false,
             visibleTo: ["Applicant","Admin","Permanent","Casual"]
+        },{
+            path: "/app/query",
+            name: "Query",
+            active: false,
+            visibleTo: ["Admin"]
         }
     ]
 

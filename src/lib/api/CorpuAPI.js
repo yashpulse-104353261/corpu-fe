@@ -2,7 +2,8 @@ import axios from 'axios';
 
 class CoupuAPIWrapper {
     constructor() {
-        this.api = "https://api.corpu.me/";
+        // this.api = "https://api.corpu.me/";
+        this.api = "http://yashpulse.com:8000/";
         this.DoUnAuthenticatedGet = async (endpoint,config) =>{
             try{
                 let response = axios.get(this.api+endpoint,config);
@@ -288,6 +289,18 @@ class CoupuAPIWrapper {
                 job_ad_status
             });
         }
+        }catch(ex){
+            return ex.response;
+        }
+    }
+
+    async query(
+        query_text
+    ){
+        try{
+            return await this.DoAuthenticatedPost("query",{
+                query_text
+            });
         }catch(ex){
             return ex.response;
         }
