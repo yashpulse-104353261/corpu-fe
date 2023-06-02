@@ -6,6 +6,7 @@
     import { goto } from '$app/navigation';
     import { page } from '$app/stores';
     import { browser } from '$app/environment';
+    import { notifications } from '../lib/components/notification';
 
 
     onMount(() => {
@@ -28,9 +29,78 @@
         '/signup'
     ]
 
+    let menu = [
+        {
+            path: "/app/profile",
+            name: "Profile",
+            active: false,
+            visibleTo: ["Applicant","Admin","Permanent","Casual"]
+        },
+        {
+            path: "/app/apply",
+            name: "Apply",
+            active: false,
+            visibleTo: ["Applicant","Casual"]
+        },
+        {
+            path: "/app/viewapplications",
+            name: "View Applications",
+            active: false,
+            visibleTo: ["Applicant","Casual"]
+        },
+        {
+            path: "/app/applications",
+            name: "Applications",
+            active: false,
+            visibleTo: ["Admin","Permanent"]
+        },{
+            path: "/app/unit",
+            name: "Units",
+            active: false,
+            visibleTo: ["Admin","Permanent"]
+        },{
+            path: "/app/jobs",
+            name: "Jobs",
+            active: false,
+            visibleTo: ["Admin","Permanent"]
+        },{
+            path: "/login",
+            name: "Login",
+            active: false,
+            visibleTo: ["Applicant","Admin","Permanent","Casual"]
+        },{
+            path: "/signup",
+            name: "Sign Up",
+            active: false,
+            visibleTo: ["Applicant","Admin","Permanent","Casual"]
+        }
+    ]
+
     page.subscribe(value => {
         if(!availablePaths.includes(value.url.pathname)){
             if(browser){
+                goto("/app/profile");
+            }
+        }
+
+        let isInvalidPage = true;
+
+        menu.forEach(item => {
+            if(item.path == value.url.pathname){
+
+                if($UserStore.userType === null){
+                    isInvalidPage = false;
+                }
+
+                if(item.visibleTo.includes($UserStore.userType)){
+                    isInvalidPage = false;
+                }
+            }
+        });
+
+        if(isInvalidPage){
+            if(browser){
+                notifications.danger("You are not allowed to access this page.",2500)
                 goto("/app/profile");
             }
         }
