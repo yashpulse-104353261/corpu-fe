@@ -2,7 +2,7 @@ import axios from 'axios';
 
 class CoupuAPIWrapper {
     constructor() {
-        this.api = "http://127.0.0.1:8000/";
+        this.api = "https://api.corpu.me/";
         this.DoUnAuthenticatedGet = async (endpoint,config) =>{
             try{
                 let response = axios.get(this.api+endpoint,config);
