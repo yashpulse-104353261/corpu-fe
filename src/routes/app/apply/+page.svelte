@@ -1,3 +1,6 @@
+<svelte:head>
+    <title>Apply</title> 
+</svelte:head>
 <script>
     import { onMount } from 'svelte';
     import CorpuAPI from '../../../lib/api/CorpuAPI';

@@ -1,5 +1,8 @@
+<svelte:head>
+    <title>Admin Queries</title> 
+</svelte:head>
+
 <script>
-    import { onMount } from 'svelte';
     import CorpuAPI from '../../../lib/api/CorpuAPI';
     import { notifications } from "../../../lib/components/notification";
     import { fly } from "svelte/transition";
@@ -209,7 +212,7 @@
     .body-table{
         display: flex;
         max-width: 82vw;
-        align-items: center;
+        max-height: 62vh;
         padding: 0.5rem;
         overflow-x: scroll;
     }

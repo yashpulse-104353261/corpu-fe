@@ -1,3 +1,7 @@
+<svelte:head>
+    <title>Sign Up</title> 
+</svelte:head>
+
 <script>
     import Logo from "$lib/components/Logo.svelte";
     import CorpuAPI from "../../lib/api/CorpuAPI";
