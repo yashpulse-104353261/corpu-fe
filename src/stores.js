@@ -4,6 +4,7 @@ export const UserStore = writable({
     isLoggedIn: false,
     user:{},
     authToken: null,
-    refreshToken: null
+    refreshToken: null,
+    userType: null,
 });
  

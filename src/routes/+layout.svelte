@@ -4,6 +4,9 @@
     import { UserStore } from '../stores';
     import { onMount } from 'svelte';
     import { goto } from '$app/navigation';
+    import { page } from '$app/stores';
+    import { browser } from '$app/environment';
+
 
     onMount(() => {
         checkUser();
@@ -13,6 +16,25 @@
     });
 
     let loadSite = false;
+
+    let availablePaths = [
+        "/app/profile",
+        "/app/apply",
+        "/app/viewapplications",
+        "/app/applications",
+        "/app/unit",
+        "/app/jobs",
+        '/login',
+        '/signup'
+    ]
+
+    page.subscribe(value => {
+        if(!availablePaths.includes(value.url.pathname)){
+            if(browser){
+                goto("/app/profile");
+            }
+        }
+    })
 
 
     const checkUser = () => {
@@ -26,15 +48,16 @@
                 isLoggedIn: true,
                 user: user,
                 authToken: authToken,
-                refreshToken: refreshToken
+                refreshToken: refreshToken,
+                userType: user.user_type
             });
 
             if (window.location.pathname == "/" || window.location.pathname == "" || window.location.pathname.includes("login") || window.location.pathname.includes("signup")){
-                goto("app/profile");
+                goto("/app/profile");
             }
         }else{
             if (window.location.pathname != "/login" && window.location.pathname != "/signup"){
-                goto("login");
+                goto("/login");
             }
         }
     }

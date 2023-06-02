@@ -44,6 +44,8 @@
         }
     ]
 
+    
+
     const setActive = (path) => {
         menu.forEach(item => {
             if(item.path == path){
@@ -53,10 +55,10 @@
             }
         });
 
-        menu = [...menu];
+        menu = menu;
     }
 
-    onMount(() => {
+    onMount(() => {        
         setActive($page.url.pathname);
     });
 
@@ -73,7 +75,8 @@
             isLoggedIn: false,
             user: null,
             authToken: null,
-            refreshToken: null
+            refreshToken: null,
+            userType: null
         });
 
 
@@ -92,7 +95,9 @@
     </div>
     <div class="menu">
         {#each menu as menuItem}
+            {#if menuItem.visibleTo.includes($UserStore.userType)}
             <a href={menuItem.path} class="menu-item {menuItem.active == true ? "active":""}"> {menuItem.name}</a>  
+            {/if}
         {/each}
     </div>
 </div>

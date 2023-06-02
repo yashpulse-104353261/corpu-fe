@@ -35,10 +35,11 @@
                 isLoggedIn: true,
                 user: response?.data?.data,
                 authToken: response?.data?.auth_token,
-                refreshToken: response?.data?.refresh_token
+                refreshToken: response?.data?.refresh_token,
+                user: response?.data?.data?.user_type
             });
 
-            goto("app/profile");
+            window.location.pathname = "app/profile";
         }else{
             response?.data?.messages.forEach(message => {
                 notifications.danger(message,1000);
