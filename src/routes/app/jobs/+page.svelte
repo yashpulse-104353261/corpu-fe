@@ -54,6 +54,7 @@
     }
 
     const getJobs = async (notify = true) => {
+        jobChangeStatus = []
         const response = await CorpuAPI.getJobs();
         if (response?.data?.success === true) {
             response?.data?.messages.forEach(message => {
