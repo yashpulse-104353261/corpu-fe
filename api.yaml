@@ -1,0 +1,715 @@
+openapi: 3.0.0
+info:
+  title: To-Do List Application API
+  version: v1
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        UserId:
+          type: integer
+          description: Unique identifier for the user.
+        Email:
+          type: string
+          nullable: true
+          description: User's email address.
+        Mobile:
+          type: string
+          nullable: true
+          description: User's mobile phone number.
+        FailedOTPAttempts:
+          type: integer
+          description: Number of failed OTP attempts.
+        CreatedAt:
+          type: string
+          format: date-time
+          description: Timestamp of when the user was created.
+        UpdatedAt:
+          type: string
+          format: date-time
+          description: Timestamp of when the user was last updated.
+
+    TodoList:
+      type: object
+      properties:
+        TodoListId:
+          type: integer
+          description: Unique identifier for the to-do list.
+        OwnerUserId:
+          type: integer
+          description: Identifier of the user who owns the to-do list.
+        Title:
+          type: string
+          nullable: true
+          description: Title of the to-do list.
+        Description:
+          type: string
+          nullable: true
+          description: Description of the to-do list.
+        Icon:
+          type: string
+          nullable: true
+          description: Icon associated with the to-do list.
+        CreatedAt:
+          type: string
+          format: date-time
+          description: Timestamp of when the to-do list was created.
+        UpdatedAt:
+          type: string
+          format: date-time
+          description: Timestamp of when the to-do list was last updated.
+
+    TodoItem:
+      type: object
+      properties:
+        TodoItemId:
+          type: integer
+          description: Unique identifier for the to-do item.
+        TodoListId:
+          type: integer
+          description: Identifier of the to-do list this item belongs to.
+        Title:
+          type: string
+          nullable: true
+          description: Title of the to-do item.
+        Description:
+          type: string
+          nullable: true
+          description: Description of the to-do item.
+        AssignedToUserId:
+          type: integer
+          nullable: true
+          description: Identifier of the user to whom this item is assigned.
+        DueDate:
+          type: string
+          format: date-time
+          nullable: true
+          description: Due date for the to-do item.
+        IsCompleted:
+          type: boolean
+          description: Indicates if the to-do item is completed.
+        Icon:
+          type: string
+          nullable: true
+          description: Icon associated with the to-do item.
+        Priority:
+          type: integer
+          description: Priority of the to-do item.
+        CreatedAt:
+          type: string
+          format: date-time
+          description: Timestamp of when the to-do item was created.
+        UpdatedAt:
+          type: string
+          format: date-time
+          description: Timestamp of when the to-do item was last updated.
+
+    SubTask:
+      type: object
+      properties:
+        SubTaskID:
+          type: integer
+          description: Unique identifier for the subtask.
+        ParentTodoItemId:
+          type: integer
+          description: Identifier of the parent to-do item.
+        Title:
+          type: string
+          nullable: true
+          description: Title of the subtask.
+        IsCompleted:
+          type: boolean
+          description: Indicates if the subtask is completed.
+        CreatedDate:
+          type: string
+          format: date-time
+          description: Timestamp of when the subtask was created.
+        UpdatedDate:
+          type: string
+          format: date-time
+          description: Timestamp of when the subtask was last updated.
+
+    Reminder:
+      type: object
+      properties:
+        ReminderId:
+          type: integer
+          description: Unique identifier for the reminder.
+        TodoItemId:
+          type: integer
+          description: Identifier of the to-do item this reminder is for.
+        ReminderTime:
+          type: string
+          format: date-time
+          description: Time when the reminder should be triggered.
+        IsSent:
+          type: boolean
+          description: Indicates if the reminder has been sent.
+        Message:
+          type: string
+          nullable: true
+          description: Reminder message.
+        CreatedAt:
+          type: string
+          format: date-time
+          description: Timestamp of when the reminder was created.
+        UpdatedAt:
+          type: string
+          format: date-time
+          description: Timestamp of when the reminder was last updated.
+
+    TodoListSharing:
+      type: object
+      properties:
+        SharingId:
+          type: integer
+          description: Unique identifier for the sharing record.
+        TodoListId:
+          type: integer
+          description: Identifier of the to-do list being shared.
+        SharedWithUserId:
+          type: integer
+          description: Identifier of the user with whom the to-do list is shared.
+        Permission:
+          type: string
+          nullable: true
+          description: Permission level for the shared user.
+        CreatedAt:
+          type: string
+          format: date-time
+          description: Timestamp of when the sharing record was created.
+
+    SharedLink:
+      type: object
+      properties:
+        ShareID:
+          type: integer
+          description: Unique identifier for the shared link.
+        EntityType:
+          type: string
+          nullable: true
+          description: Type of entity being shared.
+        EntityID:
+          type: integer
+          description: Identifier of the entity being shared.
+        ShareToken:
+          type: string
+          nullable: true
+          description: Unique token for accessing the shared entity.
+        Permission:
+          type: string
+          nullable: true
+          description: Permission level for accessing the shared entity.
+        ExpiryDate:
+          type: string
+          format: date-time
+          nullable: true
+          description: Expiration date of the shared link.
+        CreatedDate:
+          type: string
+          format: date-time
+          description: Timestamp of when the shared link was created.
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: []
+
+paths:
+  /auth:
+    post:
+      summary: Register a new user (or authenticate if exists)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                Email:
+                  type: string
+                Mobile:
+                  type: string
+      responses:
+        "200":
+          description: Successful registration/authentication
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  user:
+                    $ref: "#/components/schemas/User"
+        "400":
+          description: Bad request
+  /auth/verify:
+    post:
+      summary: Verifies the OTP
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                SessionId:
+                  type: string
+                Code:
+                  type: string
+      responses:
+        "200":
+          description: Successful verification
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  user:
+                    $ref: "#/components/schemas/User"
+        "400":
+          description: Bad request
+
+  /auth/refreshtoken:
+    get:
+      summary: Generate a new token
+      responses:
+        "200":
+          description: Successful Token Generated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  user:
+                    $ref: "#/components/schemas/User"
+        "400":
+          description: Bad request
+
+  /users/{UserId}:
+    get:
+      summary: Get a user by ID
+      parameters:
+        - in: path
+          name: UserId
+          schema:
+            type: integer
+          required: true
+          description: ID of the user to retrieve
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "404":
+          description: User not found
+
+  /todolists:
+    get:
+      summary: Get all to-do lists for the authenticated user
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TodoList"
+    post:
+      summary: Create a new to-do list
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TodoList"
+      responses:
+        "201":
+          description: Successful creation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TodoList"
+        "400":
+          description: Bad request
+
+  /todolists/{TodoListId}:
+    get:
+      summary: Get a to-do list by ID
+      parameters:
+        - in: path
+          name: TodoListId
+          schema:
+            type: integer
+          required: true
+          description: ID of the to-do list to retrieve
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TodoList"
+        "404":
+          description: To-do list not found
+    put:
+      summary: Update an existing to-do list
+      parameters:
+        - in: path
+          name: TodoListId
+          schema:
+            type: integer
+          required: true
+          description: ID of the to-do list to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TodoList"
+      responses:
+        "200":
+          description: Successful update
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TodoList"
+        "400":
+          description: Bad request
+        "404":
+          description: To-do list not found
+    delete:
+      summary: Delete a to-do list
+      parameters:
+        - in: path
+          name: TodoListId
+          schema:
+            type: integer
+          required: true
+          description: ID of the to-do list to delete
+      responses:
+        "204":
+          description: Successful deletion
+        "404":
+          description: To-do list not found
+
+  /todoitems:
+    post:
+      summary: Create a new to-do item
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TodoItem"
+      responses:
+        "201":
+          description: Successful creation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TodoItem"
+        "400":
+          description: Bad request
+
+  /todoitems/{TodoItemId}:
+    get:
+      summary: Get a to-do item by ID
+      parameters:
+        - in: path
+          name: TodoItemId
+          schema:
+            type: integer
+          required: true
+          description: ID of the to-do item to retrieve
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TodoItem"
+        "404":
+          description: To-do item not found
+    put:
+      summary: Update an existing to-do item
+      parameters:
+        - in: path
+          name: TodoItemId
+          schema:
+            type: integer
+          required: true
+          description: ID of the to-do item to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TodoItem"
+      responses:
+        "200":
+          description: Successful update
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TodoItem"
+        "400":
+          description: Bad request
+        "404":
+          description: To-do item not found
+    delete:
+      summary: Delete a to-do item
+      parameters:
+        - in: path
+          name: TodoItemId
+          schema:
+            type: integer
+          required: true
+          description: ID of the to-do item to delete
+      responses:
+        "204":
+          description: Successful deletion
+        "404":
+          description: To-do item not found
+
+  /subtasks:
+    post:
+      summary: Create a new subtask
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubTask"
+      responses:
+        "201":
+          description: Successful creation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubTask"
+        "400":
+          description: Bad request
+
+  /subtasks/{SubTaskID}:
+    get:
+      summary: Get a subtask by ID
+      parameters:
+        - in: path
+          name: SubTaskID
+          schema:
+            type: integer
+          required: true
+          description: ID of the subtask to retrieve
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubTask"
+        "404":
+          description: Subtask not found
+    put:
+      summary: Update an existing subtask
+      parameters:
+        - in: path
+          name: SubTaskID
+          schema:
+            type: integer
+          required: true
+          description: ID of the subtask to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubTask"
+      responses:
+        "200":
+          description: Successful update
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubTask"
+        "400":
+          description: Bad request
+        "404":
+          description: Subtask not found
+    delete:
+      summary: Delete a subtask
+      parameters:
+        - in: path
+          name: SubTaskID
+          schema:
+            type: integer
+          required: true
+          description: ID of the subtask to delete
+      responses:
+        "204":
+          description: Successful deletion
+        "404":
+          description: Subtask not found
+
+  /reminders:
+    post:
+      summary: Create a new reminder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Reminder"
+      responses:
+        "201":
+          description: Successful creation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Reminder"
+        "400":
+          description: Bad request
+
+  /reminders/{ReminderId}:
+    get:
+      summary: Get a reminder by ID
+      parameters:
+        - in: path
+          name: ReminderId
+          schema:
+            type: integer
+          required: true
+          description: ID of the reminder to retrieve
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Reminder"
+        "404":
+          description: Reminder not found
+    put:
+      summary: Update an existing reminder
+      parameters:
+        - in: path
+          name: ReminderId
+          schema:
+            type: integer
+          required: true
+          description: ID of the reminder to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Reminder"
+      responses:
+        "200":
+          description: Successful update
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Reminder"
+        "400":
+          description: Bad request
+        "404":
+          description: Reminder not found
+    delete:
+      summary: Delete a reminder
+      parameters:
+        - in: path
+          name: ReminderId
+          schema:
+            type: integer
+          required: true
+          description: ID of the reminder to delete
+      responses:
+        "204":
+          description: Successful deletion
+        "404":
+          description: Reminder not found
+
+  /todolistsharing:
+    post:
+      summary: Share a to-do list with another user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TodoListSharing"
+      responses:
+        "201":
+          description: Successful sharing
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TodoListSharing"
+        "400":
+          description: Bad request
+
+  /todolistsharing/{SharingId}:
+    delete:
+      summary: Stop sharing a to-do list with a user
+      parameters:
+        - in: path
+          name: SharingId
+          schema:
+            type: integer
+          required: true
+          description: ID of the sharing record to delete
+      responses:
+        "204":
+          description: Successful deletion
+        "404":
+          description: Sharing record not found
+
+  /sharedlinks:
+    post:
+      summary: Create a shared link for a to-do list or item
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SharedLink"
+      responses:
+        "201":
+          description: Successful creation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SharedLink"
+        "400":
+          description: Bad request
+
+  /sharedlinks/{ShareID}:
+    delete:
+      summary: Delete a shared link
+      parameters:
+        - in: path
+          name: ShareID
+          schema:
+            type: integer
+          required: true
+          description: ID of the shared link to delete
+      responses:
+        "204":
+          description: Successful deletion
+        "404":
+          description: Shared Link not found
